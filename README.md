@@ -12,7 +12,7 @@ The skill enforces a conservative migration workflow: use the Doctrine wrapper, 
 - Documents SQL object naming conventions for tables, columns, primary keys, foreign keys, timestamps, booleans, and join tables.
 - Enforces one DDL statement per DDL migration file.
 - Prevents mixing DDL and DML in the same migration version.
-- Provides Python validators for naming and file-structure checks.
+- Provides Python validators for migration names, file structure, and SQL object names.
 
 ## Repository Layout
 
@@ -30,6 +30,7 @@ skills/doctrine-migrations/
   scripts/
     validate_migration_file_rules.py
     validate_migration_names.py
+    validate_sql_object_names.py
 ```
 
 ## Installation
@@ -97,6 +98,7 @@ From the target application repository:
    ```bash
    python3 .agents/skills/doctrine-migrations/scripts/validate_migration_names.py migrations/migrations
    python3 .agents/skills/doctrine-migrations/scripts/validate_migration_file_rules.py migrations/migrations
+   python3 .agents/skills/doctrine-migrations/scripts/validate_sql_object_names.py migrations/migrations
    ```
 
 7. Apply locally only after reviewing status and SQL.
@@ -193,6 +195,22 @@ Checks that:
 - DML migrations do not contain schema-changing statements.
 - SQL statements can be classified as DDL or DML.
 
+### SQL Object Naming Validator
+
+```bash
+python3 .agents/skills/doctrine-migrations/scripts/validate_sql_object_names.py [path]
+```
+
+Checks statically detectable SQL naming rules in `CREATE TABLE`, `ALTER TABLE ... ADD COLUMN`, and rename statements:
+
+- Table and column names use lowercase `snake_case`.
+- Tables are plural and avoid reserved or ambiguous names.
+- Primary keys are named `id`, except composite join-table keys.
+- Foreign keys use singular entity names plus `_id`.
+- Timestamp columns end in `_at`.
+- Boolean columns start with `is_`, `has_`, or `can_`.
+- Simple many-to-many tables use plural table names joined by `_` and avoid redundant `has`.
+
 ## References
 
 - `skills/doctrine-migrations/SKILL.md` is the runtime contract for agents.
@@ -205,6 +223,7 @@ Checks that:
 - `skills/doctrine-migrations/references/sql-object-naming-sql-examples.md` contains complete SQL naming examples.
 - `skills/doctrine-migrations/scripts/validate_migration_names.py` validates file and class names.
 - `skills/doctrine-migrations/scripts/validate_migration_file_rules.py` validates migration SQL structure.
+- `skills/doctrine-migrations/scripts/validate_sql_object_names.py` validates SQL table and column naming rules.
 
 ## License
 

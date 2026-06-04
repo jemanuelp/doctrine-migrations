@@ -83,6 +83,7 @@ See `migration-file-examples.md` for DML examples with one or more `addSql` call
 - DDL files contain exactly one `addSql` in `up()` and one in `down()`.
 - DML files may contain multiple `addSql` calls, but all statements belong to one logical data change.
 - DDL and DML are split into ordered migration versions.
+- SQL object names follow `sql-object-naming-rules.md`.
 - `down()` reverses the exact effect of `up()` where feasible.
 
 ## Automated Enforcement
@@ -105,6 +106,12 @@ Run the full file-rule validator from the repo root:
 python3 .agents/skills/doctrine-migrations/scripts/validate_migration_file_rules.py migrations/migrations
 ```
 
+Run the SQL object naming validator from the repo root:
+
+```bash
+python3 .agents/skills/doctrine-migrations/scripts/validate_sql_object_names.py migrations/migrations
+```
+
 Validate one file while authoring a new migration:
 
 ```bash
@@ -121,3 +128,9 @@ The validator fails when:
 - A DDL migration has more or fewer than one `addSql` call in `down()`.
 - A DDL migration has more or fewer than one DDL statement in either method.
 - A SQL statement cannot be classified as DDL or DML.
+
+The SQL object naming validator fails when:
+
+- Table or column names are not lowercase `snake_case`.
+- Table names are singular, reserved, ambiguous, or include redundant `has`.
+- Primary keys, foreign keys, timestamps, booleans, or simple join tables violate the SQL naming convention.

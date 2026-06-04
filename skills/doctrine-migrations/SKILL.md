@@ -28,7 +28,7 @@ Use this skill when creating, reviewing, executing, rolling back, or diagnosing 
 - Never mix DDL and DML in the same migration file; split schema changes and data changes into separate versions.
 - Table and column names must follow the SQL object naming convention in `references/sql-object-naming-rules.md`: plural `snake_case` tables, singular `snake_case` columns, `id` primary keys, singular `<related_table>_id` foreign keys, `_at` timestamp fields, clear boolean prefixes, plural join tables without redundant `has`, and no reserved or ambiguous names.
 - After `sh migrations.sh generate`, rename `VersionYYYYMMDDHHMMSS.php` to `VersionYYYYMMDDHHMMSS_english_snake_case_suffix.php` and update the internal class name to match the file stem exactly.
-- Run `scripts/validate_migration_names.py` and `scripts/validate_migration_file_rules.py` before reporting migration work complete.
+- Run `scripts/validate_migration_names.py`, `scripts/validate_migration_file_rules.py`, and `scripts/validate_sql_object_names.py` before reporting migration work complete.
 
 ## Decision Gates
 
@@ -46,6 +46,7 @@ Use this skill when creating, reviewing, executing, rolling back, or diagnosing 
 | Generated file is still bare `VersionYYYYMMDDHHMMSS.php` | Rename file and class with an English snake_case suffix. |
 | Need naming-only enforcement | Run `python3 .agents/skills/doctrine-migrations/scripts/validate_migration_names.py [path]`. |
 | Need automated enforcement | Run `python3 .agents/skills/doctrine-migrations/scripts/validate_migration_file_rules.py [path]`. |
+| Need SQL object naming enforcement | Run `python3 .agents/skills/doctrine-migrations/scripts/validate_sql_object_names.py [path]`. |
 | Need exact command syntax | Open `references/doctrine-commands.md`. |
 
 ## Execution Steps
@@ -62,8 +63,9 @@ Use this skill when creating, reviewing, executing, rolling back, or diagnosing 
 5. Review the generated SQL manually; enforce `references/migration-file-rules.md` before running it.
 6. Run `python3 .agents/skills/doctrine-migrations/scripts/validate_migration_names.py <migration-file-or-dir>` from the repo root.
 7. Run `python3 .agents/skills/doctrine-migrations/scripts/validate_migration_file_rules.py <migration-file-or-dir>` from the repo root.
-8. Run `./migrations.sh migrations:status` and, when applying locally, `./migrations.sh migrations:migrate`.
-9. Report the migration version, changed tables/columns/indexes, and verification command output.
+8. Run `python3 .agents/skills/doctrine-migrations/scripts/validate_sql_object_names.py <migration-file-or-dir>` from the repo root.
+9. Run `./migrations.sh migrations:status` and, when applying locally, `./migrations.sh migrations:migrate`.
+10. Report the migration version, changed tables/columns/indexes, and verification command output.
 
 ## Output Contract
 
@@ -78,6 +80,7 @@ Return:
 - Whether the file is DDL-only, DML-only, and compliant with addSql count rules.
 - Validation output from `scripts/validate_migration_file_rules.py`.
 - Naming validation output from `scripts/validate_migration_names.py`.
+- SQL object naming output from `scripts/validate_sql_object_names.py`.
 - Verification result from `migrations:status`, `migrations:list`, or `migrations:migrate`.
 
 ## References
@@ -91,3 +94,4 @@ Return:
 - `references/sql-object-naming-sql-examples.md` — complete SQL naming examples.
 - `scripts/validate_migration_file_rules.py` — static checker for DDL/DML migration file rules.
 - `scripts/validate_migration_names.py` — static checker for migration file and class names.
+- `scripts/validate_sql_object_names.py` — static checker for SQL table and column naming rules.
