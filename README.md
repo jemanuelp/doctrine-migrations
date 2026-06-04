@@ -22,6 +22,11 @@ skills/doctrine-migrations/
   references/
     doctrine-commands.md
     migration-file-rules.md
+    migration-file-examples.md
+    many-to-many-table-examples.md
+    sql-object-naming-rules.md
+    sql-object-naming-examples.md
+    sql-object-naming-sql-examples.md
   scripts/
     validate_migration_file_rules.py
     validate_migration_names.py
@@ -139,7 +144,7 @@ Rules:
 
 ### SQL Object Naming
 
-DDL migrations that create or rename database objects must follow the shared SQL naming convention:
+DDL migrations that create or rename database objects must follow `skills/doctrine-migrations/references/sql-object-naming-rules.md`:
 
 - Tables use plural `snake_case`, such as `users`, `products`, `orders`, and `order_items`.
 - Columns use singular `snake_case`, such as `email`, `phone_number`, `status`, and `total_amount`.
@@ -147,7 +152,7 @@ DDL migrations that create or rename database objects must follow the shared SQL
 - Foreign keys use the related entity in singular form plus `_id`, such as `user_id`, `product_id`, and `order_id`.
 - Timestamp fields that represent events should end in `_at`, such as `created_at`, `updated_at`, `deleted_at`, and `paid_at`.
 - Boolean fields should express a condition, such as `is_active`, `is_deleted`, `has_discount`, or `can_login`.
-- Join tables combine the related plural table names, such as `users_roles` and `products_categories`.
+- Many-to-many join tables combine the related plural table names, such as `users_roles` and `products_categories`; avoid redundant names such as `users_has_roles`.
 - Avoid `camelCase`, reserved words, ambiguous names, overly generic names, and fields that store multiple values.
 
 ### DML
@@ -192,7 +197,12 @@ Checks that:
 
 - `skills/doctrine-migrations/SKILL.md` is the runtime contract for agents.
 - `skills/doctrine-migrations/references/doctrine-commands.md` lists supported Doctrine commands through `migrations.sh`.
-- `skills/doctrine-migrations/references/migration-file-rules.md` explains naming, DDL/DML separation, and examples.
+- `skills/doctrine-migrations/references/migration-file-rules.md` explains naming and DDL/DML separation rules.
+- `skills/doctrine-migrations/references/migration-file-examples.md` contains complete DDL/DML migration examples.
+- `skills/doctrine-migrations/references/many-to-many-table-examples.md` contains many-to-many join table naming examples.
+- `skills/doctrine-migrations/references/sql-object-naming-rules.md` explains table, column, key, timestamp, boolean, and join table naming rules.
+- `skills/doctrine-migrations/references/sql-object-naming-examples.md` contains complete good and bad SQL object naming examples.
+- `skills/doctrine-migrations/references/sql-object-naming-sql-examples.md` contains complete SQL naming examples.
 - `skills/doctrine-migrations/scripts/validate_migration_names.py` validates file and class names.
 - `skills/doctrine-migrations/scripts/validate_migration_file_rules.py` validates migration SQL structure.
 
