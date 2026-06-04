@@ -26,6 +26,7 @@ Use this skill when creating, reviewing, executing, rolling back, or diagnosing 
 - For DDL, create one migration file per DDL statement: exactly one `$this->addSql(...)` in `up()` and exactly one in `down()`.
 - For DML, multiple `$this->addSql(...)` calls are allowed in both `up()` and `down()`.
 - Never mix DDL and DML in the same migration file; split schema changes and data changes into separate versions.
+- Table and column names must follow the SQL object naming convention in `references/migration-file-rules.md`: plural `snake_case` tables, singular `snake_case` columns, `id` primary keys, singular `<related_table>_id` foreign keys, `_at` timestamp fields, clear boolean prefixes, and no reserved or ambiguous names.
 - After `sh migrations.sh generate`, rename `VersionYYYYMMDDHHMMSS.php` to `VersionYYYYMMDDHHMMSS_english_snake_case_suffix.php` and update the internal class name to match the file stem exactly.
 - Run `scripts/validate_migration_names.py` and `scripts/validate_migration_file_rules.py` before reporting migration work complete.
 
@@ -40,6 +41,7 @@ Use this skill when creating, reviewing, executing, rolling back, or diagnosing 
 | Roll back or manually mark versions | Ask for confirmation first. |
 | Migration has DDL and DML | Split it into separate schema and data migration files. |
 | DDL migration has multiple statements | Split each DDL statement into its own migration file. |
+| Migration creates or renames tables/columns | Enforce plural `snake_case` table names and singular `snake_case` column names from `references/migration-file-rules.md`. |
 | Generated file is still bare `VersionYYYYMMDDHHMMSS.php` | Rename file and class with an English snake_case suffix. |
 | Need naming-only enforcement | Run `python3 .agents/skills/doctrine-migrations/scripts/validate_migration_names.py [path]`. |
 | Need automated enforcement | Run `python3 .agents/skills/doctrine-migrations/scripts/validate_migration_file_rules.py [path]`. |
@@ -69,6 +71,7 @@ Return:
 - Migration file path and version.
 - Commands executed through `migrations.sh`.
 - Tables, columns, indexes, constraints, or seed data affected.
+- Confirmation that new or renamed tables and columns follow the SQL object naming convention.
 - Filename and class name, confirming both match `VersionYYYYMMDDHHMMSS_english_snake_case_suffix`.
 - Whether rollback SQL exists or why rollback is intentionally unavailable.
 - Whether the file is DDL-only, DML-only, and compliant with addSql count rules.

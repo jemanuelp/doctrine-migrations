@@ -9,6 +9,7 @@ The skill enforces a conservative migration workflow: use the Doctrine wrapper, 
 - Routes Doctrine migration work through `./migrations.sh`.
 - Documents the safe command set for inspecting, generating, applying, and rolling back migrations.
 - Enforces migration file naming with an English `snake_case` suffix.
+- Documents SQL object naming conventions for tables, columns, primary keys, foreign keys, timestamps, booleans, and join tables.
 - Enforces one DDL statement per DDL migration file.
 - Prevents mixing DDL and DML in the same migration version.
 - Provides Python validators for naming and file-structure checks.
@@ -135,6 +136,19 @@ Rules:
 - Exactly one `$this->addSql(...)` call in `up()`.
 - Exactly one `$this->addSql(...)` call in `down()`.
 - No data changes in the same file.
+
+### SQL Object Naming
+
+DDL migrations that create or rename database objects must follow the shared SQL naming convention:
+
+- Tables use plural `snake_case`, such as `users`, `products`, `orders`, and `order_items`.
+- Columns use singular `snake_case`, such as `email`, `phone_number`, `status`, and `total_amount`.
+- Primary keys use `id` inside each table.
+- Foreign keys use the related entity in singular form plus `_id`, such as `user_id`, `product_id`, and `order_id`.
+- Timestamp fields that represent events should end in `_at`, such as `created_at`, `updated_at`, `deleted_at`, and `paid_at`.
+- Boolean fields should express a condition, such as `is_active`, `is_deleted`, `has_discount`, or `can_login`.
+- Join tables combine the related plural table names, such as `users_roles` and `products_categories`.
+- Avoid `camelCase`, reserved words, ambiguous names, overly generic names, and fields that store multiple values.
 
 ### DML
 

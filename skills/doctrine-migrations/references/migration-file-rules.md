@@ -102,6 +102,250 @@ public function down(Schema $schema): void
 
 Fix the bad shape by creating two files: one DDL migration for the table and one DML migration for the default row.
 
+## SQL Object Naming
+
+DDL migrations that create or rename tables, columns, constraints, indexes, or foreign keys must keep database object names consistent across the schema.
+
+General convention:
+
+- Use one naming convention everywhere in the database.
+- Prefer `snake_case` for SQL table and column names.
+- Use plural table names because tables represent collections of rows.
+- Use singular column names because columns represent one value per row.
+- Avoid `camelCase`, `PascalCase`, and mixed-case SQL identifiers.
+- Avoid reserved words, ambiguous names, and overly generic names.
+- Use clear, descriptive names that explain the stored data without relying on hidden context.
+
+Recommended shape:
+
+```text
+Tables: plural + snake_case
+Columns: singular + snake_case
+Primary key: id
+Foreign key: singular_related_table_name_id
+```
+
+Good table names:
+
+```text
+users
+products
+orders
+order_items
+user_addresses
+users_roles
+products_categories
+```
+
+Bad table names:
+
+```text
+user
+product
+order
+orderItems
+userAddresses
+userRole
+productCategory
+```
+
+Good column names:
+
+```text
+id
+email
+phone_number
+status
+first_name
+total_amount
+payment_status
+unit_price
+created_at
+updated_at
+deleted_at
+paid_at
+is_active
+is_deleted
+has_discount
+can_login
+user_id
+product_id
+order_id
+```
+
+Bad column names:
+
+```text
+UserId
+emails
+phoneNumbers
+statuses
+firstName
+totalAmount
+creationDate
+updateDate
+active
+deleted
+users_id
+products_id
+orders_id
+date
+type
+amount
+status2
+price1
+```
+
+Primary keys may be named `id` inside each table. For example, the primary key of `users` should be `id`, not `user_id`. `user_id` is correct when it is a foreign key from another table to `users`.
+
+Foreign keys must use the related table's entity name in singular form plus `_id`:
+
+```text
+user_id
+product_id
+order_id
+```
+
+Timestamp fields that describe when an event happened should preferably end in `_at`:
+
+```text
+created_at
+updated_at
+deleted_at
+paid_at
+```
+
+Boolean fields must clearly express a true/false condition:
+
+```text
+is_active
+is_deleted
+has_discount
+can_login
+```
+
+Many-to-many join tables should combine the related plural table names in `snake_case`:
+
+```text
+users_roles
+products_categories
+```
+
+Do not store multiple values in one field. If one row can have multiple values, model them with a related table.
+
+Bad structure:
+
+```text
+users
+- id
+- name
+- emails
+```
+
+Good structure:
+
+```text
+users
+- id
+- name
+
+user_emails
+- id
+- user_id
+- email
+```
+
+Good SQL example:
+
+```sql
+CREATE TABLE users (
+    id BIGINT PRIMARY KEY,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+);
+
+CREATE TABLE products (
+    id BIGINT PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    description TEXT,
+    unit_price DECIMAL(10, 2) NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+);
+
+CREATE TABLE orders (
+    id BIGINT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    order_status VARCHAR(50) NOT NULL,
+    total_amount DECIMAL(10, 2) NOT NULL,
+    paid_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+
+    CONSTRAINT fk_orders_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+);
+
+CREATE TABLE order_items (
+    id BIGINT PRIMARY KEY,
+    order_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    quantity INT NOT NULL,
+    unit_price DECIMAL(10, 2) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+
+    CONSTRAINT fk_order_items_order
+        FOREIGN KEY (order_id)
+        REFERENCES orders(id),
+
+    CONSTRAINT fk_order_items_product
+        FOREIGN KEY (product_id)
+        REFERENCES products(id)
+);
+```
+
+Bad SQL example:
+
+```sql
+CREATE TABLE User (
+    UserId BIGINT PRIMARY KEY,
+    firstName VARCHAR(100) NOT NULL,
+    lastName VARCHAR(100),
+    emails VARCHAR(255),
+    active BOOLEAN DEFAULT true,
+    creationDate TIMESTAMP NOT NULL
+);
+
+CREATE TABLE Product (
+    ProductId BIGINT PRIMARY KEY,
+    productName VARCHAR(150) NOT NULL,
+    price1 DECIMAL(10, 2) NOT NULL,
+    active BOOLEAN DEFAULT true
+);
+
+CREATE TABLE Order (
+    OrderId BIGINT PRIMARY KEY,
+    users_id BIGINT NOT NULL,
+    status2 VARCHAR(50) NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    date TIMESTAMP NOT NULL
+);
+
+CREATE TABLE orderItems (
+    OrderItemId BIGINT PRIMARY KEY,
+    OrdersId BIGINT NOT NULL,
+    ProductsId BIGINT NOT NULL,
+    qty INT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL
+);
+```
+
 ## DML Migrations
 
 DML statements change data: `INSERT`, `UPDATE`, `DELETE`, and data backfills.
