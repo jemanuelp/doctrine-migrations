@@ -28,6 +28,12 @@ skills/doctrine-migrations/
 
 ## Installation
 
+Install the skill with:
+
+```bash
+npx skills add jemanuelp/doctrine-migrations
+```
+
 Install this repository as an OpenCode skill source, or copy `skills/doctrine-migrations` into your OpenCode skills directory.
 
 Common local layout:
